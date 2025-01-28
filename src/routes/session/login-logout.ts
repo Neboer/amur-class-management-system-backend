@@ -30,11 +30,11 @@ const login_api: FastifyPluginCallback = (f, opts, done) => {
         }
 
         // 普通的用户和管理员账号不同之处在于，管理员账号拥有……
-        let db_student: Student | null = await fastify.db.user_module.get_student_by_phone(request.body.username)
+        let db_student: Student | null = await fastify.db.user_module.get_student_by_phone(request.body.username, true)
         let db_admin;
         if (!db_student) {
             // maybe not a normal student, check if it's an admin
-            db_admin = await fastify.db.user_module.get_admin_by_name(request.body.username)
+            db_admin = await fastify.db.user_module.get_admin_by_name(request.body.username, true)
             if (!db_admin) {
                 // not an admin either, return error
                 fastify.log.info(`User not found: ${request.body.username}`)

@@ -38,15 +38,16 @@ const student_api: FastifyPluginCallback = (f, opts, done) => {
             body: Type.Object({
                 name: Type.String(),
                 phone_number: Type.String(),
+                init_password: Type.String()
             })
         }
     }, async (request, reply) => {
         fastify.log.info(`Creating student ${request.body.name}`)
-        // 学生的默认密码，应该与手机号相同。
+        // 学生的默认密码，应该与手机号相同，不过在这里我们使用init_password，要求前端将新密码发送到后端。
         return await fastify.db.user_module.create_student({
             name: request.body.name,
             phone_number: request.body.phone_number,
-            password: await fastify.bcrypt_hash(request.body.phone_number)
+            password: await fastify.bcrypt_hash(request.body.init_password)
         })
     })
 

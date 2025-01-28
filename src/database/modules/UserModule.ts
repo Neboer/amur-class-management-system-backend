@@ -16,24 +16,24 @@ export default class UserModule extends BasicDBModule {
         await this.query(sql, params)
     }
 
-    public async get_student_by_phone(phone_number: string): Promise<Student | null> {
-        const sql = `SELECT id, name, phone_number
+    public async get_student_by_phone(phone_number: string, need_password = false): Promise<Student | null> {
+        const sql = `SELECT id, name, phone_number ${need_password ? ', password' : ''}
                      FROM student
                      WHERE phone_number = $1`
         const params = [phone_number]
         return await this.query_one<Student>(sql, params)
     }
 
-    public async get_student_by_id(id: number): Promise<Student | null> {
-        const sql = `SELECT id, name, phone_number
+    public async get_student_by_id(id: number, need_password = false): Promise<Student | null> {
+        const sql = `SELECT id, name, phone_number ${need_password ? ', password' : ''}
                      FROM student
                      WHERE id = $1`
         const params = [id]
         return await this.query_one<Student>(sql, params)
     }
 
-    public async get_admin_by_name(username: string): Promise<Admin | null> {
-        const sql = `SELECT id, username
+    public async get_admin_by_name(username: string, need_password = false): Promise<Admin | null> {
+        const sql = `SELECT id, username ${need_password ? ', password' : ''}
                      FROM admin
                      WHERE username = $1`
         const params = [username]

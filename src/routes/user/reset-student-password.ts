@@ -56,7 +56,7 @@ const reset_student_pass_api: FastifyPluginCallback = (f, opts, done) => {
             // 与phone_number对应，准许重置密码。
             fastify.log.info(`Password reset for student ${request.body.phone_number}`)
             student.password = await fastify.bcrypt_hash(request.body.new_password)
-            await fastify.db.user_module.update_student(student)
+            await fastify.db.user_module.update_student_password(student.id, student.password)
             await fastify.db.reset_pass_module.mark_password_reset_record_used_by_id(record.id)
             return {status: 'ok'}
         }
