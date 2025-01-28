@@ -11,13 +11,13 @@ export default class UserModule extends BasicDBModule {
 
     public async create_student(student: Student): Promise<void> {
         const sql = `INSERT INTO student (name, phone_number, password)
-                     VALUES ($1. $2, $3)`
+                     VALUES ($1, $2, $3)`
         const params = [student.name, student.phone_number, student.password]
         await this.query(sql, params)
     }
 
     public async get_student_by_phone(phone_number: string): Promise<Student | null> {
-        const sql = `SELECT *
+        const sql = `SELECT id, name, phone_number
                      FROM student
                      WHERE phone_number = $1`
         const params = [phone_number]
@@ -25,7 +25,7 @@ export default class UserModule extends BasicDBModule {
     }
 
     public async get_student_by_id(id: number): Promise<Student | null> {
-        const sql = `SELECT *
+        const sql = `SELECT id, name, phone_number
                      FROM student
                      WHERE id = $1`
         const params = [id]
@@ -33,7 +33,7 @@ export default class UserModule extends BasicDBModule {
     }
 
     public async get_admin_by_name(username: string): Promise<Admin | null> {
-        const sql = `SELECT *
+        const sql = `SELECT id, username
                      FROM admin
                      WHERE username = $1`
         const params = [username]
@@ -41,12 +41,12 @@ export default class UserModule extends BasicDBModule {
     }
 
     public async get_all_students(): Promise<Array<Student>> {
-        const sql = `SELECT *
+        const sql = `SELECT id, name, phone_number
                      FROM student`
         return await this.query<Student>(sql)
     }
 
-    public async update_student(student: Student): Promise<void> {
+    public async update_student_info(student: Student): Promise<void> {
         const sql = `UPDATE student
                      SET name         = $1,
                          phone_number = $2,
@@ -56,12 +56,28 @@ export default class UserModule extends BasicDBModule {
         await this.query(sql, params)
     }
 
-    public async update_admin(admin: Admin): Promise<void> {
+    public async update_admin_info(admin: Admin): Promise<void> {
         const sql = `UPDATE admin
                      SET username = $1,
                          password = $2
                      WHERE id = $3`
         const params = [admin.username, admin.password, admin.id]
+        await this.query(sql, params)
+    }
+
+    public async update_student_password(id: number, password: string): Promise<void> {
+        const sql = `UPDATE student
+                     SET password = $1
+                     WHERE id = $2`
+        const params = [password, id]
+        await this.query(sql, params)
+    }
+
+    public async update_admin_password(id: number, password: string): Promise<void> {
+        const sql = `UPDATE admin
+                     SET password = $1
+                     WHERE id = $2`
+        const params = [password, id]
         await this.query(sql, params)
     }
 

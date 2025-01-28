@@ -34,9 +34,9 @@ const user_basic_api: FastifyPluginCallback = (f, opts, done) => {
         }
         user.password = await fastify.bcrypt_hash(request.body.new_password)
         if (request.session.student) {
-            await fastify.db.user_module.update_student(user as Student)
+            await fastify.db.user_module.update_student_password(request.session.student.id, user.password)
         } else if (request.session.admin) {
-            await fastify.db.user_module.update_admin(user as Admin)
+            await fastify.db.user_module.update_admin_password(request.session.admin.id, user.password)
         }
         return {status: 'ok'}
     })
