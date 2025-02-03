@@ -46,13 +46,13 @@ export default class UserModule extends BasicDBModule {
         return await this.query<Student>(sql)
     }
 
+    // 更新除了密码外的学生信息
     public async update_student_info(student: Student): Promise<void> {
         const sql = `UPDATE student
                      SET name         = $1,
-                         phone_number = $2,
-                         password     = $3
-                     WHERE id = $4`
-        const params = [student.name, student.phone_number, student.password, student.id]
+                         phone_number = $2
+                     WHERE id = $3`
+        const params = [student.name, student.phone_number, student.id]
         await this.query(sql, params)
     }
 
