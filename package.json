@@ -17,6 +17,7 @@
     "fastify-plugin": "^5.0.1",
     "pg": "^8.13.1",
     "pg-pool": "^3.7.0",
+    "pino": "^9.6.0",
     "svg-captcha": "^1.4.0",
     "uuid": "^11.0.3"
   },
@@ -33,7 +34,8 @@
   },
   "scripts": {
     "build": "tsc && tsc-alias",
-    "run": "node dist/server.js | pino-pretty",
+    "start": "node dist/server.js | pino-pretty",
+    "build-and-start": "npm run build && npm run start",
     "test": "node dist/test/index.js",
     "create-admin": "node dist/scripts/create-admin.js"
   }
