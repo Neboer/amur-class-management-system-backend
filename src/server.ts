@@ -6,6 +6,8 @@ import fastifyBcryptPlugin from './plugins/bcrypt-plugin'
 import routes from "./routes";
 import {fastifyCookie} from "@fastify/cookie";
 import {fastifySession} from "@fastify/session";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUI from "@fastify/swagger-ui";
 
 
 declare module 'fastify' {
@@ -65,6 +67,29 @@ async function main() {
             maxAge: 1000 * 60 * 60 * 24 // 1 day
         }
     })
+
+    // 注册 Swagger
+    await server.register(fastifySwagger, {
+        swagger: {
+            info: {
+                title: 'API 文档',
+                description: 'Fastify + Swagger API 文档',
+                version: '1.0.0'
+            },
+            host: `${server.config.HOST}:${server.config.PORT}`,
+            schemes: ['http'],
+            consumes: ['application/json'],
+            produces: ['application/json']
+        }
+    });
+
+    // 注册 Swagger UI
+    await server.register(fastifySwaggerUI, {
+        routePrefix: '/docs',
+        staticCSP: true,
+        transformSpecificationClone: true,
+    });
+
     server.register(routes, {prefix: '/api'})
 
     server.log.info(`Starting server on ${server.config.HOST}:${server.config.PORT}`)
