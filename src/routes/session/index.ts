@@ -1,6 +1,4 @@
 import {FastifyPluginCallback} from 'fastify'
-import {fastifySession} from '@fastify/session';
-import {fastifyCookie} from '@fastify/cookie';
 import {Admin, Student} from "models/user";
 import login_logout from "./login-logout";
 
