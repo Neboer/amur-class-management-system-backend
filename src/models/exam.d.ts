@@ -4,9 +4,12 @@ export interface Exam {
     date: string // Date in the format "YYYY-MM-DD"
 }
 
-export interface ExamSubject {
+export interface ExamSubjectWithoutExamID {
     id?: number
-    exam_id: number
     subject: string
     full_score: number
+}
+
+export interface ExamSubject extends ExamSubjectWithoutExamID {
+    exam_id: number
 }

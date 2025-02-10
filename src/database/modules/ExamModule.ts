@@ -1,9 +1,9 @@
 import BasicDBModule from "./BasicDBModule";
-import {Exam, ExamSubject} from "models/exam";
+import {Exam, ExamSubject, ExamSubjectWithoutExamID} from "models/exam";
 import {bulk_insert_query} from "../helper/bulk_insert";
 
 export default class ExamModule extends BasicDBModule {
-    public async create_exam(exam: Exam, subjects: Array<ExamSubject>): Promise<void> {
+    public async create_exam(exam: Exam, subjects: Array<ExamSubjectWithoutExamID>): Promise<void> {
         await this.client_transaction(async client => {
             const exam_sql = `INSERT INTO exam (name, date)
                               VALUES ($1, $2)
@@ -55,7 +55,7 @@ export default class ExamModule extends BasicDBModule {
         return await this.query<ExamSubject>(sql, params)
     }
 
-    public async delete_subjects_of_exam(exam_id: number, subject_name: string): Promise<void> {
+    public async delete_subject_of_exam_by_name(exam_id: number, subject_name: string): Promise<void> {
         const sql = `DELETE
                      FROM exam_subject
                      WHERE exam_id = $1
@@ -64,10 +64,38 @@ export default class ExamModule extends BasicDBModule {
         await this.query(sql, params)
     }
 
-    public async add_subject_to_exam(exam_id: number, subject: ExamSubject): Promise<void> {
-        const sql = `INSERT INTO exam_subject (exam_id, subject, full_score)
-                     VALUES ($1, $2, $3)`
-        const params = [exam_id, subject.subject, subject.full_score]
-        await this.query(sql, params)
+    public async add_subjects_to_exam(exam_id: number, subjects: ExamSubjectWithoutExamID[]): Promise<void> {
+        return await this.client_transaction(async client => {
+            const sql = `INSERT INTO exam_subject (exam_id, subject, full_score)
+                         VALUES ($1, $2, $3)`
+            await bulk_insert_query(client, sql, subjects.map(subject => [exam_id, subject.subject, subject.full_score]))
+        })
+    }
+
+    public async get_subject_by_id(id: number): Promise<ExamSubject | null> {
+        const sql = `SELECT * FROM exam_subject WHERE id = $1`;
+        const params = [id];
+        return await this.query_one<ExamSubject>(sql, params);
+    }
+
+    public async delete_subject_of_exam_by_id(id: number): Promise<void> {
+        const sql = `DELETE FROM exam_subject WHERE id = $1`;
+        const params = [id];
+        await this.query(sql, params);
+    }
+
+    public async update_subject(
+        id: number,
+        subject: string,
+        full_score: number
+    ): Promise<ExamSubject> {
+        const sql = `
+        UPDATE exam_subject 
+        SET subject = $1, full_score = $2 
+        WHERE id = $3
+        RETURNING *
+    `;
+        const params = [subject, full_score, id];
+        return await this.query_one<ExamSubject>(sql, params);
     }
 }
