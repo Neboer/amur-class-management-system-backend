@@ -45,5 +45,7 @@ export async function bulk_insert_query(client: PoolClient, sql: string, data: a
     // Flatten the data array
     const flattenedData = data.flat();
     // Execute the query with the flattened data array
-    return client.query(sql_bulk_insert_convert(sql, columnCount), flattenedData);
+    const converted_sql = sql_bulk_insert_convert(sql, data.length);
+    console.log(converted_sql, data)
+    return client.query(converted_sql, flattenedData);
 }
