@@ -26,7 +26,7 @@ const exam_subject_api: FastifyPluginCallback = (f, opts, done) => {
                 request.params.exam_id,
                 request.body.subjects
             );
-            return reply.status(201).send({ message: 'ok' });
+            return reply.status(201).send({ status: 'ok' });
         } catch (error) {
             fastify.log.error(error);
             return reply.status(500).send({ error: 'Failed to add subjects' });

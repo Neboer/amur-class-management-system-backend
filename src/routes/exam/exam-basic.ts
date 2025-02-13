@@ -2,7 +2,6 @@ import { FastifyPluginCallback } from 'fastify';
 import { require_admin } from '../session/require-privilege';
 import { Type } from '@sinclair/typebox';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { Exam, ExamSubject } from 'models/exam';
 
 const exam_api: FastifyPluginCallback = (f, opts, done) => {
     const fastify = f.withTypeProvider<TypeBoxTypeProvider>();
@@ -55,13 +54,8 @@ const exam_api: FastifyPluginCallback = (f, opts, done) => {
     }, async (request, reply) => {
         const { name, date, subjects } = request.body;
         fastify.log.info(`Creating exam ${name}`);
-        try {
             await examModule.create_exam({ name, date }, subjects);
-            return reply.status(201).send({ message: 'ok' });
-        } catch (error) {
-            fastify.log.error(error);
-            return reply.status(500).send({ error: 'Failed to create exam' });
-        }
+            return reply.status(201).send({ status: 'ok' });
     });
 
     // 更新考试信息（名称、日期）
@@ -86,13 +80,9 @@ const exam_api: FastifyPluginCallback = (f, opts, done) => {
         }
         exam.name = name;
         exam.date = date;
-        try {
             await examModule.update_exam(exam);
-            return { message: 'Exam updated successfully' };
-        } catch (error) {
-            fastify.log.error(error);
-            return reply.status(500).send({ error: 'Failed to update exam' });
-        }
+            return { status: 'ok' };
+
     });
 
     // 删除考试
@@ -110,13 +100,8 @@ const exam_api: FastifyPluginCallback = (f, opts, done) => {
         if (!exam) {
             return reply.status(404).send({ error: 'Exam not found' });
         }
-        try {
             await examModule.delete_exam(exam_id);
-            return { message: 'Exam deleted successfully' };
-        } catch (error) {
-            fastify.log.error(error);
-            return reply.status(500).send({ error: 'Failed to delete exam' });
-        }
+            return { status: 'ok' };
     });
 
     done();
