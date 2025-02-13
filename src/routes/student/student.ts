@@ -44,11 +44,12 @@ const student_api: FastifyPluginCallback = (f, opts, done) => {
     }, async (request, reply) => {
         fastify.log.info(`Creating student ${request.body.name}`)
         // 学生的默认密码，应该与手机号相同，不过在这里我们使用init_password，要求前端将新密码发送到后端。
-        return await fastify.db.user_module.create_student({
+        await fastify.db.user_module.create_student({
             name: request.body.name,
             phone_number: request.body.phone_number,
             password: await fastify.bcrypt_hash(request.body.init_password)
         })
+        return {status: 'ok'}
     })
 
     // 管理员更新某个学生的姓名和电话
@@ -68,9 +69,12 @@ const student_api: FastifyPluginCallback = (f, opts, done) => {
         const student = await fastify.db.user_module.get_student_by_id(Number.parseInt(request.params.student_id))
         if (!student) {
             return reply.status(404).send({error: 'Student not found'})
+        } else {
+            student.name = request.body.name
+            student.phone_number = request.body.phone_number
+            await fastify.db.user_module.update_student_info(student)
+            return {status: 'ok'}
         }
-        student.name = request.body.name
-        return await fastify.db.user_module.update_student_info(student)
     })
 
     // 管理员更新学生的密码
@@ -91,7 +95,8 @@ const student_api: FastifyPluginCallback = (f, opts, done) => {
             return reply.status(404).send({error: 'Student not found'})
         }
         student.password = await fastify.bcrypt_hash(request.body.password)
-        return await fastify.db.user_module.update_student_password(student.id, student.password)
+        await fastify.db.user_module.update_student_password(student.id, student.password)
+        return {status: 'ok'}
     })
 
     // 管理员删除学生
@@ -104,7 +109,8 @@ const student_api: FastifyPluginCallback = (f, opts, done) => {
         }
     }, async (request, reply) => {
         fastify.log.info(`Deleting student ${request.params.student_id}`)
-        return await fastify.db.user_module.delete_student(Number.parseInt(request.params.student_id))
+        await fastify.db.user_module.delete_student(Number.parseInt(request.params.student_id))
+        return {status: 'ok'}
     })
 
     done()
