@@ -8,7 +8,7 @@ import {fastifyCookie} from "@fastify/cookie";
 import {fastifySession} from "@fastify/session";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
-
+import path from 'path'; // 新增导入 path 模块
 
 declare module 'fastify' {
     interface FastifyInstance {
@@ -68,26 +68,21 @@ async function main() {
         }
     })
 
-    // 注册 Swagger
-    await server.register(fastifySwagger, {
-        swagger: {
-            info: {
-                title: 'API 文档',
-                description: 'Fastify + Swagger API 文档',
-                version: '1.0.0'
-            },
-            host: `${server.config.HOST}:${server.config.PORT}`,
-            schemes: ['http'],
-            consumes: ['application/json'],
-            produces: ['application/json']
-        }
-    });
-
     // 注册 Swagger UI
+    await server.register(fastifySwagger, {
+        mode: 'static',
+        specification: {
+            path: path.join(__dirname, '../docs/openapi.yaml'), // 你的 OpenAPI YAML 文件路径
+            baseDir: path.join(__dirname, 'specs'),    // 若有 $ref 外部文件，指定基础目录
+        }
+    })
     await server.register(fastifySwaggerUI, {
-        routePrefix: '/docs',
-        staticCSP: true,
-        transformSpecificationClone: true,
+        routePrefix: '/docs',          // UI 访问路径，默认为 /documentation
+        uiConfig: {
+            docExpansion: 'list',        // 控制文档默认展开方式
+            deepLinking: true
+        },
+        staticCSP: true,               // 启用 CSP 安全头
     });
 
     server.register(routes, {prefix: '/api'})

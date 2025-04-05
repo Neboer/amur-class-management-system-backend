@@ -1,0 +1,307 @@
+openapi: 3.0.0
+info:
+  title: Exam API
+  version: 1.0.0
+  description: API for managing exams and their subjects
+servers:
+  - url: http://localhost:5173/api
+paths:
+  /exam:
+    get:
+      summary: 获取所有考试信息
+      tags:
+        - Exam
+      responses:
+        '200':
+          description: 成功获取所有考试信息
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+    post:
+      summary: 创建考试
+      tags:
+        - Exam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExamRequest'
+      responses:
+        '201':
+          description: 成功创建考试
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /exam/{exam_id}:
+    get:
+      summary: 获取某个考试的详细信息
+      tags:
+        - Exam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功获取考试信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+        '404':
+          description: 考试未找到
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Exam not found
+    put:
+      summary: 更新考试信息
+      tags:
+        - Exam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExamRequest'
+      responses:
+        '200':
+          description: 成功更新考试信息
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+        '404':
+          description: 考试未找到
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Exam not found
+    delete:
+      summary: 删除考试
+      tags:
+        - Exam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 成功删除考试
+        '404':
+          description: 考试未找到
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Exam not found
+  /exam/{exam_id}/subjects:
+    post:
+      summary: 添加多个科目到考试
+      tags:
+        - Exam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddSubjectsRequest'
+      responses:
+        '201':
+          description: 成功添加科目
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+        '500':
+          description: 添加科目失败
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to add subjects
+  /exam_subject/{id}:
+    delete:
+      summary: 删除考试科目
+      tags:
+        - Exam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 成功删除科目
+        '404':
+          description: 科目未找到
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Subject not found
+        '500':
+          description: 删除科目失败
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to delete subject
+    put:
+      summary: 修改考试科目信息
+      tags:
+        - Exam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubjectRequest'
+      responses:
+        '200':
+          description: 成功修改科目信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subject'
+        '404':
+          description: 科目未找到
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Subject not found
+        '500':
+          description: 修改科目失败
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to update subject
+components:
+  schemas:
+    Exam:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        date:
+          type: string
+          format: date-time
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+        exam_id:
+          type: integer
+        subject:
+          type: string
+        full_score:
+          type: string
+    CreateExamRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+    UpdateExamRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+    AddSubjectsRequest:
+      type: object
+      properties:
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+    UpdateSubjectRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+        full_score:
+          type: number
