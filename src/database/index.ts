@@ -1,9 +1,13 @@
-import {ClientConfig, Pool} from "pg";
+import {ClientConfig, Pool, types} from "pg";
 import {BaseLogger} from 'pino'
 import UserModule from "./modules/UserModule";
 import ExamModule from "./modules/ExamModule";
 import ScoreModule from "./modules/ScoreModule";
 import ResetPassModule from "./modules/ResetPassModule";
+
+types.setTypeParser(1700, function(val) {
+    return parseFloat(val);
+});
 
 export default class Database {
     private readonly db: Pool
